@@ -41,7 +41,7 @@ class Script(scripts.Script):
 
     def ui(self, is_img2img):
         prompt2 = gr.Textbox(label='Second prompt', value='')
-        weight = gr.Slider(minimum=0.0, maximum=1.0, step=0.05, label='Interpolation Amount (First prompt <-> Second prompt)', value=0.5)
+        weight = gr.Slider(minimum=0.0, maximum=1.0, step=0.01, label='Interpolation Amount (First prompt <-> Second prompt)', value=0.5)
 
         return [prompt2, weight]
 
@@ -65,7 +65,6 @@ class Script(scripts.Script):
         return result + 1
 
     def run(self, p, prompt2, weight):
-
         def prompt_mix_process_images(p: StableDiffusionProcessing, latent) -> Processed:
             """this is the main loop that both txt2img and img2img use; it calls func_init once inside all the scopes and func_sample once per batch"""
             # FIXME remove? 
