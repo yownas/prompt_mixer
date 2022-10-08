@@ -24,4 +24,4 @@ lol, lmao even. No.
 
 50/50 mix (LERP) of "cat" and "dog". Seed: 1, Steps: 20, Sampler: Euler a, CFG: 7, 512x512
 
-![05447-1-cat](https://user-images.githubusercontent.com/13150150/194652515-053cc6da-a2ff-484b-ae30-a6c493437c6b.png)
+![05659-1-cat](https://user-images.githubusercontent.com/13150150/194712214-7d54ca98-b12c-4c73-a48c-91d3362674d2.png)
