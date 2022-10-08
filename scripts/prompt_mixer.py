@@ -41,9 +41,11 @@ class Script(scripts.Script):
 
     def ui(self, is_img2img):
         prompt2 = gr.Textbox(label='Second prompt', value='')
-        weight = gr.Slider(minimum=0.0, maximum=1.0, step=0.01, label='Interpolation Amount (First prompt <-> Second prompt)', value=0.5)
+        mode = gr.Dropdown(label="Mode", choices=['LERP','Add','Sub'], value=0, type='index')
+        weight = gr.Slider(minimum=0.0, maximum=1.0, step=0.01, label='Interpolation Amount (First prompt <-> Second prompt) / Weight', value=0.5)
+        amplification = gr.Slider(minimum=0.0, maximum=2.0, step=0.01, label='Amplification', value=1.0)
 
-        return [prompt2, weight]
+        return [prompt2, mode, weight, amplification]
 
     ##############
 
@@ -64,7 +66,7 @@ class Script(scripts.Script):
                 pass
         return result + 1
 
-    def run(self, p, prompt2, weight):
+    def run(self, p, prompt2, mode, weight, amplification):
         def prompt_mix_process_images(p: StableDiffusionProcessing, latent) -> Processed:
             """this is the main loop that both txt2img and img2img use; it calls func_init once inside all the scopes and func_sample once per batch"""
             # FIXME remove? 
@@ -264,8 +266,18 @@ class Script(scripts.Script):
             c = prompt_parser.get_multicond_learned_conditioning(shared.sd_model, prompts, p.steps)
             c2 = prompt_parser.get_multicond_learned_conditioning(shared.sd_model, prompts2, p.steps)
 
-        n = torch.lerp(c.batch[0][0].schedules[0].cond, c2.batch[0][0].schedules[0].cond, weight)
-        s = ScheduledPromptConditioning(end_at_step=p.n_iter, cond=n)
+        if mode == 0: # LERP
+            n = torch.lerp(c.batch[0][0].schedules[0].cond, c2.batch[0][0].schedules[0].cond, weight)
+        elif mode == 1: # Add
+            n = torch.add(c.batch[0][0].schedules[0].cond, c2.batch[0][0].schedules[0].cond, alpha=weight)
+        elif mode == 2: # Sub
+            n = torch.sub(c.batch[0][0].schedules[0].cond, c2.batch[0][0].schedules[0].cond, alpha=weight)
+
+        print(f"DBG1: {c.batch[0][0].schedules[0].cond}")
+        m = torch.mul(n, amplification)
+        print(f"DBG2: {m}")
+
+        s = ScheduledPromptConditioning(end_at_step=p.n_iter, cond=m)
         r = ComposableScheduledPromptConditioning(schedules=[s], weight=1.0)
         c3 = MulticondLearnedConditioning(shape=c.shape, batch=[[r]])
 
