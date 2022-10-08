@@ -4,6 +4,10 @@ Script for https://github.com/AUTOMATIC1111/stable-diffusion-webui to let you mi
 
 This is still under development and might "work" but don't expect too much.
 
+# Installation
+1. Copy the file in the scripts-folder to the scripts-folder from https://github.com/AUTOMATIC1111/stable-diffusion-webui
+2. There is no step 2.
+
 # Goal and tips.
 
 This is ment as a tool to experiment with the tensors generated from prompts and hopefully give you a feeling for how they work and how weights affect them.
@@ -18,6 +22,6 @@ lol, lmao even. No.
 
 # Example
 
-50/50 mix of "cat" and "dog". Seed: 1, Steps: 20, Sampler: Euler a, CFG: 7, 512x512
+50/50 mix (LERP) of "cat" and "dog". Seed: 1, Steps: 20, Sampler: Euler a, CFG: 7, 512x512
 
 ![05447-1-cat](https://user-images.githubusercontent.com/13150150/194652515-053cc6da-a2ff-484b-ae30-a6c493437c6b.png)
