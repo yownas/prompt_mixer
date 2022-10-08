@@ -41,8 +41,8 @@ class Script(scripts.Script):
 
     def ui(self, is_img2img):
         prompt2 = gr.Textbox(label='Second prompt', value='')
-        mode = gr.Dropdown(label="Mode", choices=['LERP','Add','Sub'], value=0, type='index')
-        weight = gr.Slider(minimum=0.0, maximum=1.0, step=0.01, label='Interpolation Amount (First prompt <-> Second prompt) / Weight', value=0.5)
+        mode = gr.Dropdown(label="Mode", choices=['LERP','Add','Sub'], value='LERP', type='index')
+        weight = gr.Slider(minimum=0.0, maximum=1.0, step=0.01, label='Interpolation Amount (First prompt <-> Second prompt) OR Weight (amount to add/substract)', value=0.5)
         amplification = gr.Slider(minimum=0.0, maximum=2.0, step=0.01, label='Amplification', value=1.0)
 
         return [prompt2, mode, weight, amplification]
@@ -267,15 +267,16 @@ class Script(scripts.Script):
             c2 = prompt_parser.get_multicond_learned_conditioning(shared.sd_model, prompts2, p.steps)
 
         if mode == 0: # LERP
+            print("prompt_mixer: LERP")
             n = torch.lerp(c.batch[0][0].schedules[0].cond, c2.batch[0][0].schedules[0].cond, weight)
         elif mode == 1: # Add
+            print("prompt_mixer: Add")
             n = torch.add(c.batch[0][0].schedules[0].cond, c2.batch[0][0].schedules[0].cond, alpha=weight)
         elif mode == 2: # Sub
+            print("prompt_mixer: Sub")
             n = torch.sub(c.batch[0][0].schedules[0].cond, c2.batch[0][0].schedules[0].cond, alpha=weight)
 
-        print(f"DBG1: {c.batch[0][0].schedules[0].cond}")
         m = torch.mul(n, amplification)
-        print(f"DBG2: {m}")
 
         s = ScheduledPromptConditioning(end_at_step=p.n_iter, cond=m)
         r = ComposableScheduledPromptConditioning(schedules=[s], weight=1.0)
